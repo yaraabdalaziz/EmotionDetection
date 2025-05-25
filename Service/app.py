@@ -9,13 +9,9 @@ print("Service is ready")
 
 @app.route('/detect-emotion', methods=['POST'])
 def detect_emotion_endpoint():
-    user_id = request.headers.get('user-id')
     api_key = request.headers.get('api-key')
-
-    if not user_id or not api_key:
-        return jsonify({"error": "Missing 'user-id' or 'api-key' in headers"}), 400
-    
-    if not server.authenticated_user(user_id , api_key):
+    user_id = server.authenticate_user(user_id , api_key)
+    if  not api_key or not user_id:    
         return jsonify({"error": "Unauthorized"}), 403
     
     if not server.user_has_quota(user_id):
