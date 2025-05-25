@@ -23,7 +23,7 @@ class EmotionDetector :
             return re.sub(r'\s+', ' ', text).strip()
         return normalize_whitespace(remove_special_characters(text)).lower()
 
-    def predict_emotion(self, text):
+    def predict(self, text):
             """
             Predicts the emotion of an input text using the fine-tuned model.
 
@@ -54,4 +54,4 @@ class EmotionDetector :
             predicted_label = self.id2label[predicted_class_id]
             probability = np.exp(logits.cpu().numpy()[0][predicted_class_id]) / np.sum(np.exp(logits.cpu().numpy()[0]))
 
-            return  text , predicted_label,  probability
+            return  text , predicted_label,  float(probability)

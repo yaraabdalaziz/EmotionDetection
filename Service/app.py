@@ -1,20 +1,11 @@
 from flask import Flask, request, jsonify
-from EmotionDetector import EmotionDetector
-
+from Server import Server
 # Initialize Flask app
 app = Flask(__name__)
 
-# Load the model once, globally
-detector = EmotionDetector('Models/Bert-2epochs')
+server = Server()
+print("Service is ready")
 
-def authenticated_user(user_id , api_key): 
-    #TODO :  if api_key != "expected_api_key": use db 
-    #    return false
-    return True
-
-def user_has_quota(user_id):
-    #TODO : check qouta balance in db
-    return True
 
 @app.route('/detect-emotion', methods=['POST'])
 def detect_emotion_endpoint():
@@ -24,10 +15,10 @@ def detect_emotion_endpoint():
     if not user_id or not api_key:
         return jsonify({"error": "Missing 'user-id' or 'api-key' in headers"}), 400
     
-    if not authenticated_user(user_id , api_key):
+    if not server.authenticated_user(user_id , api_key):
         return jsonify({"error": "Unauthorized"}), 403
     
-    if not user_has_quota(user_id):
+    if not server.user_has_quota(user_id):
         return jsonify({
             "error": {
                 "code": "quota_exceeded",
@@ -42,9 +33,9 @@ def detect_emotion_endpoint():
     text = data['text']
     
     try:
-        preprocessed_text,predicted_label, probability = detector.predict_emotion(text)
+        preprocessed_text,predicted_label, probability = server.detect_emotion(text,user_id)
         return jsonify(
-            {"preprocessed_text" : preprocessed_text ,"label": predicted_label, "probability":  float(probability)}
+            {"preprocessed_text" : preprocessed_text ,"label": predicted_label, "probability":  probability}
         )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
