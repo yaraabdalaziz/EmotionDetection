@@ -1,18 +1,19 @@
 import sqlite3
-
+from utils import encrypt_password , generate_api_key
 class AppDatabase():
-    
+
     def add_new_user (self,email,password,quota):
 
         conn = sqlite3.connect('Database/emotion_detection.db')
         cursor = conn.cursor()
-        api_key = "api_key_test" #TODO: generate using a generator
+        api_key = generate_api_key()
+        encrypted_password = encrypt_password(password)
         cursor.execute('''
         INSERT INTO Users (email, password, api_key, quota, available_requests)
         VALUES (?, ?, ?, ?, ?)
         ''', (
             email,
-            password,  #TODO: In production, hash this!
+            encrypted_password, 
             api_key, 
             quota,
             quota
@@ -31,13 +32,13 @@ class AppDatabase():
         conn.commit()
         conn.close()
 
-    def get_api_key_by_user_id(self,user_id):
+    def get_user_id(self,api_key):
         conn = sqlite3.connect('Database/emotion_detection.db')
         cursor = conn.cursor()
         cursor.execute('''
-        SELECT api_key FROM Users
-        WHERE user_id = ?;
-        ''', (user_id,))
+        SELECT user_id FROM Users
+        WHERE api_key = ?;
+        ''', (api_key,))
 
         result = cursor.fetchone()
         conn.close()
