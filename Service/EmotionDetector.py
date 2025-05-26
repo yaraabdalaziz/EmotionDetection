@@ -13,7 +13,6 @@ class EmotionDetector :
         else:
              self.device = 'cpu'
         self.model.to(self.device)
-        print("Model is ready")
 
     @staticmethod
     def preprocess(text):
