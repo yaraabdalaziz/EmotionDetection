@@ -1,5 +1,5 @@
 import sqlite3
-from utils import encrypt_password , generate_api_key
+from Database.utils import encrypt_password , generate_api_key
 class AppDatabase():
 
     def add_new_user (self,email,password,quota):
