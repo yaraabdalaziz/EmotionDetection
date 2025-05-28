@@ -1,5 +1,5 @@
 from Database.connection import get_connection
-from Database.utils import encrypt_password, generate_api_key
+from Library.utils import encrypt_password, generate_api_key
 
 class UsersRepo:
     def add_new_user(self, email, password, quota):
