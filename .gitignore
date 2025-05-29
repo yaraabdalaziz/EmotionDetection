@@ -1,2 +1,7 @@
 venv/
 .DS_Store
+.vscode/
+*.db
+Models/
+*-shm
+*-wal
