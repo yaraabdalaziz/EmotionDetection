@@ -9,7 +9,7 @@ class UsersRepo:
         api_key = generate_api_key()
 
         cursor.execute('''
-            INSERT INTO Users (email, password, api_key, quota, available_requests)
+            INSERT INTO users (email, password, api_key, quota, available_requests)
             VALUES (?, ?, ?, ?, ?)
         ''', (email, hashed_pw, api_key, quota, quota))
 
@@ -19,7 +19,7 @@ class UsersRepo:
     def get_user_id(self, api_key):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT user_id FROM Users WHERE api_key = ?', (api_key,))
+        cursor.execute('SELECT user_id FROM users WHERE api_key = ?', (api_key,))
         result = cursor.fetchone()
         conn.close()
         return result[0] if result else None
@@ -27,14 +27,14 @@ class UsersRepo:
     def decrement_user_quota(self, user_id):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute('UPDATE Users SET available_requests = available_requests - 1 WHERE user_id = ?', (user_id,))
+        cursor.execute('UPDATE users SET available_requests = available_requests - 1 WHERE user_id = ?', (user_id,))
         conn.commit()
         conn.close()
 
     def has_quota(self, user_id):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT available_requests FROM Users WHERE user_id = ?', (user_id,))
+        cursor.execute('SELECT available_requests FROM users WHERE user_id = ?', (user_id,))
         result = cursor.fetchone()
         conn.close()
         return result and result[0] > 0
