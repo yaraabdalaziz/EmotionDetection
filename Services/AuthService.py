@@ -13,7 +13,9 @@ class AuthService:
         return self.users_repo.has_quota(user_id)
     
     def consume_quota(self, user_id):
-        self.users_repo.decrement_user_quota(user_id)
+        return self.users_repo.decrement_user_quota(user_id)
+    def return_qouta(self, user_id):
+        return self.users_repo.incerement_user_quota(user_id)
 
 auth = AuthService()
 
@@ -41,22 +43,19 @@ def require_quota(consume_on_success=True):
             if not user_id:
                 return jsonify({"error": "User not authenticated"}), 401
             
-            if not auth.user_has_quota(user_id):
-                return jsonify({
-                    "error": {
-                        "code": "quota_exceeded",
-                        "message": "Quota exceeded. Please upgrade your plan or wait until next reset."
-                    }
-                }), 429
+            if not auth.consume_quota(user_id):
+                        return jsonify({
+                            "error": {
+                                "code": "quota_exceeded",
+                                "message": "Quota exceeded. Please upgrade your plan or wait until next reset."
+                            }
+                        }), 429
             
             result = f(*args, **kwargs)
-            
-            if consume_on_success:
-                if hasattr(result, 'status_code') and result.status_code < 400:
-                    auth.consume_quota(user_id)
-                elif not hasattr(result, 'status_code'):
-                    auth.consume_quota(user_id)
-            
+      
+            if consume_on_success and result[1] != 200:
+                 auth.return_qouta(user_id)
+
             return result
         return decorated_function
     return decorator

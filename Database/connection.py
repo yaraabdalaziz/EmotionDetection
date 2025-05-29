@@ -1,6 +1,6 @@
-import sqlite3
-
-DB_PATH = 'Database/emotion_detection.db'
+# Database/connection.py
+from .DatabaseManager import db
 
 def get_connection():
-    return sqlite3.connect(DB_PATH)
+    """Get database connection context manager"""
+    return db.get_connection()
