@@ -1,4 +1,4 @@
-from Library import EmotionDetector
+from Library.EmotionDetector import EmotionDetector
 from Database.HistoryRepo import HistoryRepo
 
 class EmotionDetectorService:

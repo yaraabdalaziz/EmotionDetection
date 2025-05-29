@@ -1,4 +1,4 @@
-from load_model import load_model
+from Library.load_model import load_model
 import torch
 import numpy as np
 import re
