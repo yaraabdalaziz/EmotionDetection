@@ -1,5 +1,5 @@
 from Database.connection import get_connection
-from Library.utils import encrypt_password, generate_api_key
+from Database.utils import encrypt_password, generate_api_key
 import threading
 from collections import defaultdict
 
