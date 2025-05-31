@@ -2,7 +2,7 @@ from Library.EmotionDetector import EmotionDetector
 from Database.HistoryRepo import HistoryRepo
 
 class EmotionDetectorService:
-    def __init__(self, model_path='models/Bert-2epochs'):
+    def __init__(self, model_path='yaraabdalaziz/EmotionDetection'):
         self.detector = EmotionDetector(model_path)
         self.history_repo = HistoryRepo()
     
