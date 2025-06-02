@@ -5,3 +5,4 @@ venv/
 Models/
 *-shm
 *-wal
+.env

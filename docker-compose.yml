@@ -1,0 +1,16 @@
+services:
+  emotion-app:
+    build: .
+    ports:
+      - "5001:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - HF_TOKEN=${HF_TOKEN}
+      - HOST=${HOST}
+      - PORT=${PORT}
+      - DEBUG=${DEBUG}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'

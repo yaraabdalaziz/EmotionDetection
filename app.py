@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify , g
-from Services.AuthService import  AuthService
 from Services.EmotionDetectorService import EmotionDetectorService
 from Services.AuthService import require_auth, require_quota
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -34,4 +36,8 @@ def health_check():
     return jsonify({"status": "healthy"}) , 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT", 5000))
+    debug = os.getenv("DEBUG", "false").lower() == "true"
+
+    app.run(host=host, port=port, debug=debug)

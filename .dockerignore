@@ -1,0 +1,11 @@
+Models
+Training
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+.DS_Store
+test.ipynb
