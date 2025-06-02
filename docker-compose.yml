@@ -6,6 +6,9 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - HF_TOKEN=${HF_TOKEN}
+      - HOST=${HOST}
+      - PORT=${PORT}
+      - DEBUG=${DEBUG}
     deploy:
       resources:
         limits:
