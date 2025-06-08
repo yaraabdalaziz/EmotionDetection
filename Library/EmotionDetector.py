@@ -1,6 +1,6 @@
 from Library.load_model import load_model
 import torch
-import numpy as np
+import torch.nn.functional as F
 import re
 class EmotionDetector :
     
@@ -49,8 +49,11 @@ class EmotionDetector :
                 logits = outputs.logits
 
             # Get predicted label and probability
-            predicted_class_id = np.argmax(logits.cpu().numpy()).item()
-            predicted_label = self.id2label[predicted_class_id]
-            probability = np.exp(logits.cpu().numpy()[0][predicted_class_id]) / np.sum(np.exp(logits.cpu().numpy()[0]))
 
-            return  text , predicted_label,  float(probability)
+            probs = F.softmax(logits, dim=1)   
+            predicted_class_id = torch.argmax(probs, dim=1).item()  
+            predicted_label = self.id2label[predicted_class_id] 
+            probability = probs[0, predicted_class_id].item()  
+
+
+            return  text , predicted_label,  probability

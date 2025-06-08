@@ -6,3 +6,4 @@ Models/
 *-shm
 *-wal
 .env
+.coverage
