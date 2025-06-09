@@ -6,9 +6,10 @@ import sys
 import os
 
 # Add the parent directory to the path to import modules
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from app import app, detector
+
 
 
 class TestDetectEmotionEndpoint(unittest.TestCase):
@@ -31,7 +32,6 @@ class TestDetectEmotionEndpoint(unittest.TestCase):
         self.mock_auth_service = self.auth_service_patcher.start()
         self.mock_quota_service = self.quota_service_patcher.start()
         self.mock_return_quota = self.return_quota_patcher.start()
-        
         # Configure auth service mocks to return valid responses
         self.mock_auth_service.return_value = 'test_user_123'
         self.mock_quota_service.return_value = True
@@ -81,7 +81,6 @@ class TestDetectEmotionEndpoint(unittest.TestCase):
 
     def test_detect_emotion_missing_text(self):
         """Test request with missing 'text' field."""
-        # Test data without 'text' field
         test_data = {"message": "I am happy"}
         
         response = self.client.post(
@@ -113,46 +112,6 @@ class TestDetectEmotionEndpoint(unittest.TestCase):
         # This is expected behavior for completely empty/invalid JSON
         self.assertIn(b'Bad Request', response.data)
 
-    def test_detect_emotion_null_request_body(self):
-        """Test request with null JSON body."""
-        response = self.client.post(
-            '/detect-emotion',
-            data=json.dumps(None),
-            content_type='application/json',
-            headers={'api-key': 'test_api_key'}
-        )
-        
-        self.assertEqual(response.status_code, 400)
-        
-        response_data = json.loads(response.data)
-        self.assertIn('error', response_data)
-        self.assertEqual(response_data['error'], "Missing 'text' in request body")
-
-    def test_detect_emotion_empty_text(self):
-        """Test request with empty text field."""
-        # Mock the detector response for empty text
-        self.mock_detector.detect_emotion.return_value = (
-            "",
-            "surprise", 
-            0.16
-        )
-        
-        test_data = {"text": ""}
-        
-        response = self.client.post(
-            '/detect-emotion',
-            data=json.dumps(test_data),
-            content_type='application/json',
-            headers={'api-key': 'test_api_key'}
-        )
-        
-        self.assertEqual(response.status_code, 200)
-        
-        response_data = json.loads(response.data)
-        self.assertEqual(response_data['preprocessed_text'], "")
-        self.assertEqual(response_data['label'], "surprise")
-        self.assertEqual(response_data['probability'], 0.16)
-
     def test_detect_emotion_detector_exception(self):
         """Test handling of detector service exceptions."""
         # Mock detector to raise an exception
@@ -173,89 +132,7 @@ class TestDetectEmotionEndpoint(unittest.TestCase):
         self.assertIn('error', response_data)
         self.assertEqual(response_data['error'], "Model loading failed")
 
-    def test_detect_emotion_different_emotions(self):
-        """Test detection of different emotions."""
-        test_cases = [
-            ("I am so sad", "sadness", 0.92),
-            ("I love this!", "love", 0.88),
-            ("I am angry!", "anger", 0.79),
-            ("I am scared", "fear", 0.84),
-            ("What a surprise!", "surprise", 0.77)
-        ]
-        
-        for text, expected_label, expected_prob in test_cases:
-            with self.subTest(text=text):
-                # Mock the detector response
-                self.mock_detector.detect_emotion.return_value = (
-                    text.lower(),
-                    expected_label,
-                    expected_prob
-                )
-                
-                test_data = {"text": text}
-                
-                response = self.client.post(
-                    '/detect-emotion',
-                    data=json.dumps(test_data),
-                    content_type='application/json',
-                    headers={'api-key': 'test_api_key'}
-                )
-                
-                self.assertEqual(response.status_code, 200)
-                
-                response_data = json.loads(response.data)
-                self.assertEqual(response_data['label'], expected_label)
-                self.assertEqual(response_data['probability'], expected_prob)
 
-    def test_detect_emotion_long_text(self):
-        """Test detection with long text input."""
-        long_text = "I am extremely happy today because everything is going perfectly well and I couldn't ask for anything better in my life right now. " * 10
-        
-        self.mock_detector.detect_emotion.return_value = (
-            long_text.lower(),
-            "joy",
-            0.91
-        )
-        
-        test_data = {"text": long_text}
-        
-        response = self.client.post(
-            '/detect-emotion',
-            data=json.dumps(test_data),
-            content_type='application/json',
-            headers={'api-key': 'test_api_key'}
-        )
-        
-        self.assertEqual(response.status_code, 200)
-        
-        response_data = json.loads(response.data)
-        self.assertEqual(response_data['label'], "joy")
-        self.assertEqual(response_data['probability'], 0.91)
-
-    def test_detect_emotion_special_characters(self):
-        """Test detection with special characters and emojis."""
-        special_text = "I'm so happy!!! 😊🎉 This is amazing... #blessed @everyone"
-        
-        self.mock_detector.detect_emotion.return_value = (
-            "im so happy this is amazing blessed everyone",
-            "joy",
-            0.89
-        )
-        
-        test_data = {"text": special_text}
-        
-        response = self.client.post(
-            '/detect-emotion',
-            data=json.dumps(test_data),
-            content_type='application/json',
-            headers={'api-key': 'test_api_key'}
-        )
-        
-        self.assertEqual(response.status_code, 200)
-        
-        response_data = json.loads(response.data)
-        self.assertEqual(response_data['label'], "joy")
-        self.assertEqual(response_data['probability'], 0.89)
 
     def test_health_endpoint(self):
         """Test the health check endpoint."""

@@ -5,7 +5,7 @@ import sys
 import os
 
 # Add the parent directory to the path to import the Library module
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from Library.EmotionDetector import EmotionDetector
 
