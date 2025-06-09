@@ -3,23 +3,22 @@ from flask import request, jsonify, g
 from Database.UsersRepo import UsersRepo
 
 class AuthService:
-    def __init__(self):
+    def __init__(self)-> None:
         self.users_repo = UsersRepo()
     
-    def authenticate_user(self, api_key):
+    def authenticate_user(self, api_key:str) -> int:
         return self.users_repo.get_user_id(api_key)
     
-    def user_has_quota(self, user_id):
+    def user_has_quota(self, user_id:int) -> bool:
         return self.users_repo.has_quota(user_id)
     
-    def consume_quota(self, user_id):
+    def consume_quota(self, user_id:int) -> bool:
         return self.users_repo.decrement_user_quota(user_id)
-    def return_qouta(self, user_id):
+    def return_qouta(self, user_id:int) -> bool:
         return self.users_repo.incerement_user_quota(user_id)
 
 auth = AuthService()
 
-# Decorators
 def require_auth(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):

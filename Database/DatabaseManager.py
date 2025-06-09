@@ -1,15 +1,14 @@
 import sqlite3
 from contextlib import contextmanager
 import threading
-
+from typing import Generator
 class DatabaseManager:
-    def __init__(self, db_path='Database/emotion_detection.db'):
+    def __init__(self, db_path:str='Database/emotion_detection.db') -> None:
         self.db_path = db_path
         self.local = threading.local()
         self._init_database()
     
-    def _init_database(self):
-        """Initialize database tables"""
+    def _init_database(self) -> None: 
         with self.get_connection() as conn:
             conn.executescript("""
                 CREATE TABLE IF NOT EXISTS users (
@@ -36,7 +35,7 @@ class DatabaseManager:
             """)
     
     @contextmanager
-    def get_connection(self):
+    def get_connection(self) -> Generator[sqlite3.Connection, None, None]:
         """Get thread-local database connection"""
         if not hasattr(self.local, 'connection'):
             self.local.connection = sqlite3.connect(
@@ -44,10 +43,8 @@ class DatabaseManager:
                 timeout=10.0,
                 check_same_thread=False
             )
-            #TODO: what is this?
             self.local.connection.row_factory = sqlite3.Row
             
-            # Optimize for concurrency
             self.local.connection.execute("PRAGMA journal_mode=WAL")
             self.local.connection.execute("PRAGMA synchronous=NORMAL")
             self.local.connection.execute("PRAGMA busy_timeout=10000")
@@ -58,5 +55,4 @@ class DatabaseManager:
             self.local.connection.rollback()
             raise e
 
-# Global instance
 db = DatabaseManager()
