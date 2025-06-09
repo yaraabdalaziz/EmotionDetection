@@ -19,8 +19,8 @@ class TestPredictFunction(unittest.TestCase):
         self.mock_model = Mock()
 
         self.mock_tokenizer.return_value = {
-            'input_ids': torch.tensor([[101, 1045, 2293, 2023, 102]]),
-            'attention_mask': torch.tensor([[1, 1, 1, 1, 1]])
+            "input_ids": torch.tensor([[101, 1045, 2293, 2023, 102]]),
+            "attention_mask": torch.tensor([[1, 1, 1, 1, 1]]),
         }
 
         mock_outputs = Mock()
@@ -28,7 +28,7 @@ class TestPredictFunction(unittest.TestCase):
         self.mock_model.return_value = mock_outputs
         self.mock_model.to = Mock()
 
-        with patch('Library.EmotionDetector.load_model') as mock_load:
+        with patch("Library.EmotionDetector.load_model") as mock_load:
             mock_load.return_value = (self.mock_tokenizer, self.mock_model)
             self.detector = EmotionDetector("fake_model_path", use_cuda=False)
 
@@ -88,7 +88,7 @@ class TestPredictFunction(unittest.TestCase):
             2: "love",
             3: "anger",
             4: "fear",
-            5: "surprise"
+            5: "surprise",
         }
 
         for emotion_id, emotion_name in emotions_to_test.items():
@@ -119,7 +119,7 @@ class TestPredictFunction(unittest.TestCase):
         self.assertEqual(predicted_label, "joy")
 
         # Probability should be reasonable (softmax of highest value)
-        self.assertEqual(round(probability, 3),0.45) 
+        self.assertEqual(round(probability, 3), 0.45)
         self.assertLess(probability, 1.0)
 
     def test_predict_with_empty_text(self):
@@ -134,9 +134,11 @@ class TestPredictFunction(unittest.TestCase):
 
         preprocessed_text, predicted_label, probability = result
         self.assertEqual(preprocessed_text, "")
-        self.assertIn(predicted_label, ["sadness", "joy", "love", "anger", "fear", "surprise"])
+        self.assertIn(
+            predicted_label, ["sadness", "joy", "love", "anger", "fear", "surprise"]
+        )
         self.assertIsInstance(probability, float)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

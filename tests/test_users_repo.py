@@ -14,15 +14,17 @@ class TestUsersRepo(unittest.TestCase):
     def setUp(self):
         self.users_repo = UsersRepo()
 
-    @patch('Database.UsersRepo.get_connection')
-    @patch('Database.UsersRepo.encrypt_password')
-    @patch('Database.UsersRepo.generate_api_key')
-    def test_add_new_user_success(self, mock_generate_api_key, mock_encrypt_password, mock_get_connection):
+    @patch("Database.UsersRepo.get_connection")
+    @patch("Database.UsersRepo.encrypt_password")
+    @patch("Database.UsersRepo.generate_api_key")
+    def test_add_new_user_success(
+        self, mock_generate_api_key, mock_encrypt_password, mock_get_connection
+    ):
         """Test successful addition of a new user."""
         # Mock the helper functions
         mock_encrypt_password.return_value = "hashed_password_123"
         mock_generate_api_key.return_value = "api_key_abc123"
-        
+
         # Mock the connection context manager
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -46,19 +48,18 @@ class TestUsersRepo(unittest.TestCase):
         mock_generate_api_key.assert_called_once()
 
         # Verify the correct SQL was executed
-        expected_sql = '''
+        expected_sql = """
                 INSERT INTO users (email, password, api_key, quota, available_requests)
                 VALUES (?, ?, ?, ?, ?)
-            '''
+            """
         mock_cursor.execute.assert_called_once_with(
-            expected_sql,
-            (email, "hashed_password_123", "api_key_abc123", quota, quota)
+            expected_sql, (email, "hashed_password_123", "api_key_abc123", quota, quota)
         )
 
         # Verify commit was called
         mock_conn.commit.assert_called_once()
 
-    @patch('Database.UsersRepo.get_connection')
+    @patch("Database.UsersRepo.get_connection")
     def test_get_user_id_success(self, mock_get_connection):
         """Test successful retrieval of user ID by API key."""
         # Mock the connection context manager
@@ -80,14 +81,13 @@ class TestUsersRepo(unittest.TestCase):
 
         # Verify the correct SQL was executed
         mock_cursor.execute.assert_called_once_with(
-            'SELECT user_id FROM users WHERE api_key = ?',
-            (api_key,)
+            "SELECT user_id FROM users WHERE api_key = ?", (api_key,)
         )
 
         # Verify fetchone was called
         mock_cursor.fetchone.assert_called_once()
 
-    @patch('Database.UsersRepo.get_connection')
+    @patch("Database.UsersRepo.get_connection")
     def test_decrement_user_quota_success(self, mock_get_connection):
         """Test successful quota decrement."""
         # Mock the connection context manager
@@ -111,17 +111,17 @@ class TestUsersRepo(unittest.TestCase):
         mock_conn.execute.assert_called_once_with("BEGIN IMMEDIATE")
 
         # Verify the correct SQL was executed
-        expected_sql = '''
+        expected_sql = """
                         UPDATE users 
                         SET available_requests = available_requests - 1 
                         WHERE user_id = ? AND available_requests > 0
-                    '''
+                    """
         mock_cursor.execute.assert_called_once_with(expected_sql, (user_id,))
 
         # Verify commit was called
         mock_conn.commit.assert_called_once()
 
-    @patch('Database.UsersRepo.get_connection')
+    @patch("Database.UsersRepo.get_connection")
     def test_increment_user_quota_success(self, mock_get_connection):
         """Test successful quota increment."""
         # Mock the connection context manager
@@ -145,17 +145,17 @@ class TestUsersRepo(unittest.TestCase):
         mock_conn.execute.assert_called_once_with("BEGIN IMMEDIATE")
 
         # Verify the correct SQL was executed
-        expected_sql = '''
+        expected_sql = """
                         UPDATE users 
                         SET available_requests = available_requests + 1 
                         WHERE user_id = ? 
-                    '''
+                    """
         mock_cursor.execute.assert_called_once_with(expected_sql, (user_id,))
 
         # Verify commit was called
         mock_conn.commit.assert_called_once()
 
-    @patch('Database.UsersRepo.get_connection')
+    @patch("Database.UsersRepo.get_connection")
     def test_has_quota_success_with_quota(self, mock_get_connection):
         """Test successful check when user has quota available."""
         # Mock the connection context manager
@@ -177,14 +177,13 @@ class TestUsersRepo(unittest.TestCase):
 
         # Verify the correct SQL was executed
         mock_cursor.execute.assert_called_once_with(
-            'SELECT available_requests FROM users WHERE user_id = ?',
-            (user_id,)
+            "SELECT available_requests FROM users WHERE user_id = ?", (user_id,)
         )
 
         # Verify fetchone was called
         mock_cursor.fetchone.assert_called_once()
 
-    @patch('Database.UsersRepo.get_connection')
+    @patch("Database.UsersRepo.get_connection")
     def test_has_quota_success_no_quota(self, mock_get_connection):
         """Test successful check when user has no quota available."""
         # Mock the connection context manager
@@ -206,13 +205,12 @@ class TestUsersRepo(unittest.TestCase):
 
         # Verify the correct SQL was executed
         mock_cursor.execute.assert_called_once_with(
-            'SELECT available_requests FROM users WHERE user_id = ?',
-            (user_id,)
+            "SELECT available_requests FROM users WHERE user_id = ?", (user_id,)
         )
 
         # Verify fetchone was called
         mock_cursor.fetchone.assert_called_once()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
