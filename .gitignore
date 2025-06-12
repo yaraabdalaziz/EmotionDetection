@@ -7,3 +7,6 @@ Models/
 *-wal
 .env
 .coverage
+*.log
+*.toml
+test.ipynb

@@ -3,13 +3,15 @@ from Services.EmotionDetectorService import EmotionDetectorService
 from Services.AuthService import require_auth, require_quota
 import os
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
 
+logging.basicConfig(filename='record.log', level=logging.DEBUG)
 app = Flask(__name__)
 
 detector = EmotionDetectorService()
-print("Service is ready")
+app.logger.info("Service is ready")
 
 
 @app.route("/detect-emotion", methods=["POST"])
@@ -38,7 +40,9 @@ def detect_emotion_endpoint():
             200,
         )
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        app.logger.error("Error: %s", str(e))
+
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/health", methods=["GET"])
