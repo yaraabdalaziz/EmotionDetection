@@ -117,7 +117,7 @@ class TestDetectEmotionEndpoint(unittest.TestCase):
         """Test handling of detector service exceptions."""
         # Mock detector to raise an exception
         self.mock_detector.detect_emotion.side_effect = Exception(
-            "Model loading failed"
+            "Internal server error"
         )
 
         test_data = {"text": "I am happy"}
@@ -133,7 +133,7 @@ class TestDetectEmotionEndpoint(unittest.TestCase):
 
         response_data = json.loads(response.data)
         self.assertIn("error", response_data)
-        self.assertEqual(response_data["error"], "Model loading failed")
+        self.assertEqual(response_data["error"], "Internal server error")
 
     def test_health_endpoint(self):
         """Test the health check endpoint."""
