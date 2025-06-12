@@ -2,11 +2,13 @@ import sqlite3
 from contextlib import contextmanager
 import threading
 from typing import Generator
+import os
 
 
 class DatabaseManager:
-    def __init__(self, db_path: str = "Database/emotion_detection.db") -> None:
-        self.db_path = db_path
+    def __init__(self) -> None:
+
+        self.db_path = os.getenv("DB_PATH", "emotion_detection.db")
         self.local = threading.local()
         self._init_database()
 
