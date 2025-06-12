@@ -1,17 +1,21 @@
 import sqlite3
 from contextlib import contextmanager
 import threading
+from typing import Generator
+import os
+
 
 class DatabaseManager:
-    def __init__(self, db_path='Database/emotion_detection.db'):
-        self.db_path = db_path
+    def __init__(self) -> None:
+
+        self.db_path = os.getenv("DB_PATH", "emotion_detection.db")
         self.local = threading.local()
         self._init_database()
-    
-    def _init_database(self):
-        """Initialize database tables"""
+
+    def _init_database(self) -> None:
         with self.get_connection() as conn:
-            conn.executescript("""
+            conn.executescript(
+                """
                 CREATE TABLE IF NOT EXISTS users (
                     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     email TEXT NOT NULL UNIQUE,
@@ -33,30 +37,27 @@ class DatabaseManager:
                 
                 CREATE INDEX IF NOT EXISTS idx_api_key ON users(api_key);
                 CREATE INDEX IF NOT EXISTS idx_user_requests ON requests_records(user_id);
-            """)
-    
-    @contextmanager
-    def get_connection(self):
-        """Get thread-local database connection"""
-        if not hasattr(self.local, 'connection'):
-            self.local.connection = sqlite3.connect(
-                self.db_path, 
-                timeout=10.0,
-                check_same_thread=False
+            """
             )
-            #TODO: what is this?
+
+    @contextmanager
+    def get_connection(self) -> Generator[sqlite3.Connection, None, None]:
+        """Get thread-local database connection"""
+        if not hasattr(self.local, "connection"):
+            self.local.connection = sqlite3.connect(
+                self.db_path, timeout=10.0, check_same_thread=False
+            )
             self.local.connection.row_factory = sqlite3.Row
-            
-            # Optimize for concurrency
+
             self.local.connection.execute("PRAGMA journal_mode=WAL")
             self.local.connection.execute("PRAGMA synchronous=NORMAL")
             self.local.connection.execute("PRAGMA busy_timeout=10000")
-        
+
         try:
             yield self.local.connection
         except Exception as e:
             self.local.connection.rollback()
             raise e
 
-# Global instance
+
 db = DatabaseManager()

@@ -9,6 +9,7 @@ services:
       - HOST=${HOST}
       - PORT=${PORT}
       - DEBUG=${DEBUG}
+      - DB_PATH=${DB_PATH}
     deploy:
       resources:
         limits:
