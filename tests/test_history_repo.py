@@ -4,7 +4,7 @@ import sys
 import os
 
 # Add the parent directory to the path to import modules
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from Database.HistoryRepo import HistoryRepo
 
@@ -15,7 +15,7 @@ class TestHistoryRepo(unittest.TestCase):
         """Set up test fixtures before each test method."""
         self.history_repo = HistoryRepo()
 
-    @patch('Database.HistoryRepo.get_connection')
+    @patch("Database.HistoryRepo.get_connection")
     def test_add_record_success(self, mock_get_connection):
         """Test successful addition of a record."""
         # Mock the connection context manager
@@ -42,18 +42,17 @@ class TestHistoryRepo(unittest.TestCase):
         mock_conn.cursor.assert_called_once()
 
         # Verify the correct SQL was executed with correct parameters
-        expected_sql = '''
+        expected_sql = """
                 INSERT INTO requests_records (input, prediction, probability, user_id)
                 VALUES (?, ?, ?, ?)
-            '''
+            """
         mock_cursor.execute.assert_called_once_with(
-            expected_sql,
-            (input_text, output_text, probability, user_id)
+            expected_sql, (input_text, output_text, probability, user_id)
         )
 
         # Verify commit was called
         mock_conn.commit.assert_called_once()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
